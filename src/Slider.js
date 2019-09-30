@@ -335,7 +335,9 @@ export default class Slider extends PureComponent {
         </Animated.View>
         <View
           renderToHardwareTextureAndroid
-          style={[defaultStyles.touchArea, touchOverflowStyle]}
+          style={[defaultStyles.touchArea, touchOverflowStyle, {
+            left: minRange
+          }]}
           {...this._panResponder.panHandlers}
         >
           {debugTouchArea === true &&
@@ -450,14 +452,18 @@ export default class Slider extends PureComponent {
       startPoint = (this.state.containerSize.width - this.state.thumbSize.width) / this.props.maximumValue * this.props.minimumValue;
     }
     return (
-      startPoint + ratio * (this.state.containerSize.width - this.state.thumbSize.width)
+      ratio * (this.state.containerSize.width - startPoint - this.state.thumbSize.width)
     );
   };
 
   _getValue = (gestureState: Object) => {
-    const length = this.state.containerSize.width - this.state.thumbSize.width;
+    let startPoint = 0;
+    if(this.props.restrictRange === true) {
+      startPoint = (this.state.containerSize.width - this.state.thumbSize.width) / this.props.maximumValue * this.props.minimumValue;
+    }
+    const length = (this.state.containerSize.width - startPoint - this.state.thumbSize.width);
     const thumbLeft = this._previousLeft + gestureState.dx;
-
+    
     const nonRtlRatio = thumbLeft / length;
     const ratio = I18nManager.isRTL ? 1 - nonRtlRatio : nonRtlRatio;
 
@@ -581,9 +587,10 @@ export default class Slider extends PureComponent {
 
   _renderDebugThumbTouchRect = thumbLeft => {
     const thumbTouchRect = this._getThumbTouchRect();
+    
     const positionStyle = {
       left: thumbLeft,
-      top: thumbTouchRect.y,
+      //top: thumbTouchRect.y,
       width: thumbTouchRect.width,
       height: thumbTouchRect.height,
     };
