@@ -331,7 +331,7 @@ export default class Slider extends PureComponent {
             },
           ]}
         >
-          {!!other && !!other.thumbText && <Text style={other.thumbTextStyle}>{other.thumbText}</Text>}
+          {!!other && !!other.thumbContent ? other.thumbContent : null}
         </Animated.View>
         <View
           renderToHardwareTextureAndroid
